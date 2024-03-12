@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+import random
 
 from termcolor import cprint
 from random import randint
+
 
 ######################################################## Часть первая
 #
@@ -21,9 +23,9 @@ from random import randint
 #   убираться в доме,
 
 # Все они живут в одном доме, дом характеризуется:
-#   кол-во денег в тумбочке (в начале - 100)
-#   кол-во еды в холодильнике (в начале - 50)
-#   кол-во грязи (в начале - 0)
+#   кол-во денег в тумбочке (в начале - 100)+
+#   кол-во еды в холодильнике (в начале - 50)+
+#   кол-во грязи (в начале - 0)+
 #
 # У людей есть имя, степень сытости (в начале - 30) и степень счастья (в начале - 100).
 #
@@ -45,65 +47,141 @@ from random import randint
 class House:
 
     def __init__(self):
-        pass
+        self.money = 100
+        self.food = 50
+        self.dirt = 0
+
+    def __str__(self):
+        return "В доме денег {}, еды {}, грязи {}".format(self.money, self.food, self.dirt)
+
+    def dirt_guidance(self):
+        self.dirt += 5
 
 
-class Husband:
+class Human:
+    def __init__(self, name):
+        self.name = name
+        self.fullness = 30
+        self.happiness = 100
+        self.house = None
+        self.alive = True
 
-    def __init__(self):
-        pass
+    def eat(self):
+        food_eat = random.randint(10, 30)
+        if food_eat <= self.house.food:
+            self.fullness += food_eat
+            self.house.food -= food_eat
+            print("{} поел на {}".format(self.name, food_eat))
+        else:
+            print("Нет еды")
+
+    def __str__(self):
+        return "Моё имя {}, я сыт на {}, я счастлив на {}".format(self.name, self.fullness, self.happiness)
+
+    def go_home(self, house):
+        self.house = house
+
+    def bay_food(self):
+        if self.house.money >= 60:
+            print("{} купил еду 30 шт".format(self.name))
+            self.house.food += 60
+            self.house.money -= 60
+        else:
+            print("Нет денег на еду")
+
+    def act(self):
+        if self.fullness <= 0 or self.happiness < 10:
+            print("{} умер...".format(self.name))
+            self.alive = False
+            return
+        if self.house.dirt >= 90:
+            self.happiness -= 10
+        elif self.fullness < 30:
+            self.eat()
+
+
+class Husband(Human):
+
+    def __init__(self, name):
+        super().__init__(name)
 
     def __str__(self):
         return super().__str__()
 
     def act(self):
-        pass
-
-    def eat(self):
-        pass
+        super().act()
+        if self.alive:
+            if self.house.money < 500:
+                self.work()
+            elif self.happiness < 50:
+                self.gaming()
+            else:
+                print("Смотрит ТВ")
 
     def work(self):
-        pass
+        print("{} пошл на работу".format(self.name))
+        self.house.money += 150
+        self.fullness -= 10
 
     def gaming(self):
-        pass
+        if self.happiness > 80:
+            self.happiness = 100
+            print("{} играет".format(self.name))
+        elif self.happiness < 80:
+            print("{} играет".format(self.name))
+            self.happiness += 20
+        self.fullness -= 10
 
 
-class Wife:
+class Wife(Human):
 
-    def __init__(self):
-        pass
+    def __init__(self, name):
+        super().__init__(name)
 
     def __str__(self):
         return super().__str__()
 
     def act(self):
-        pass
-
-    def eat(self):
-        pass
-
-    def shopping(self):
-        pass
+        super().act()
+        if self.alive:
+            if self.house.food <= 20:
+                self.bay_food()
+            elif self.house.dirt > 95:
+                self.clean_house()
+            elif self.happiness <= 40:
+                self.buy_fur_coat()
+            else:
+                print("Смотрит ТВ")
 
     def buy_fur_coat(self):
-        pass
+        if self.house.money >= 350:
+            print("{} Купила шубу".format(self.name))
+            self.happiness += 60
+            self.house.money -= 350
+        else:
+            print("Нет денег на шубу")
 
     def clean_house(self):
-        pass
+        print("{} убрала в дома".format(self.name))
+        self.house.dirt = 0
+        self.fullness -= 10
 
 
 home = House()
 serge = Husband(name='Сережа')
 masha = Wife(name='Маша')
+masha.go_home(home)
+serge.go_home(home)
 
 for day in range(365):
     cprint('================== День {} =================='.format(day), color='red')
     serge.act()
     masha.act()
+    home.dirt_guidance()
     cprint(serge, color='cyan')
     cprint(masha, color='cyan')
     cprint(home, color='cyan')
+
 
 # TODO после реализации первой части - отдать на проверку учителю
 
@@ -178,7 +256,6 @@ class Child:
     def sleep(self):
         pass
 
-
 # TODO после реализации второй части - отдать на проверку учителем две ветки
 
 
@@ -189,23 +266,22 @@ class Child:
 # отправить на проверку учителем.
 
 
-home = House()
-serge = Husband(name='Сережа')
-masha = Wife(name='Маша')
-kolya = Child(name='Коля')
-murzik = Cat(name='Мурзик')
-
-for day in range(365):
-    cprint('================== День {} =================='.format(day), color='red')
-    serge.act()
-    masha.act()
-    kolya.act()
-    murzik.act()
-    cprint(serge, color='cyan')
-    cprint(masha, color='cyan')
-    cprint(kolya, color='cyan')
-    cprint(murzik, color='cyan')
-
+# home = House()
+# serge = Husband(name='Сережа')
+# masha = Wife(name='Маша')
+# kolya = Child(name='Коля')
+# murzik = Cat(name='Мурзик')
+#
+# for day in range(365):
+#     cprint('================== День {} =================='.format(day), color='red')
+#     serge.act()
+#     masha.act()
+#     kolya.act()
+#     murzik.act()
+#     cprint(serge, color='cyan')
+#     cprint(masha, color='cyan')
+#     cprint(kolya, color='cyan')
+#     cprint(murzik, color='cyan')
 
 # Усложненное задание (делать по желанию)
 #
@@ -228,4 +304,3 @@ for day in range(365):
 #       for salary in range(50, 401, 50):
 #           max_cats = life.experiment(salary)
 #           print(f'При зарплате {salary} максимально можно прокормить {max_cats} котов')
-
